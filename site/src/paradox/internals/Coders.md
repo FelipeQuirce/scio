@@ -21,7 +21,7 @@ public abstract class Coder<T> implements Serializable {
 
 Beam provides built-in Coders for various basic Java types (`Integer`, `Long`, `Double`, etc.). But anytime you create a new class, and that class is used in a `SCollection`, a beam coder needs to be provided.
 
-```scala
+```scala mdoc:silent
 case class Foo(x: Int, s: String)
 
 val sc: SCollection[Foo] = ??? // Beam will need an org.apache.beam.sdk.coders.Coder[Foo]

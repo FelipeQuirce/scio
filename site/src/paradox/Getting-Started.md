@@ -77,7 +77,7 @@ sbt new spotify/scio-template.g8
 
 Or add the following to your `build.sbt`. Replace the direct and Dataflow runner with ones you wish to use. The compiler plugin dependency is only needed for the type safe BigQuery API.
 
-```scala
+```scala mdoc:silent
 libraryDependencies ++= Seq(
   "com.spotify" %% "scio-core" % "0.6.1",
   "com.spotify" %% "scio-test" % "0.6.1" % "test",

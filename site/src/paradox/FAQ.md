@@ -51,13 +51,13 @@ At Spotify we pack jars with sbt-pack, build docker images with [sbt-docker](htt
 
 Commits to Scio master are automatically published to Sonatype via continuous integration. To use the latest SNAPSHOT artifact, add the following line to your `build.sbt`.
 
-```scala
+```scala mdoc:silent
 resolvers += Resolver.sonatypeRepo("snapshots")
 ```
 
 Or you can configure SBT globally by adding the following to `~/.sbt/1.0/global.sbt`.
 
-```scala
+```scala mdoc:silent
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
   // other resolvers
@@ -84,7 +84,7 @@ For more examples see:
 How do I combine multiple input sources, e.g. different BigQuery tables, files located in different GCS buckets?
 You can combine `SCollection`s from different sources into one using the companion method `SCollection.unionAll`, for example:
 
-```scala
+```scala mdoc:silent
 val (sc, args) = ContextAndArgs(cmdlineArgs)
 
 val collections = Seq("gs://bucket1/data/*.avro", "gs://bucket2/data/*.avro")
@@ -96,7 +96,7 @@ val all = SCollection.unionAll(collections)
 
 You can log in a Scio job with most common logging libraries but `slf4j` is included as a dependency. Define the logger instance as a member of the job `object` and use it inside a lambda.
 
-```scala
+```scala mdoc:silent
 import org.slf4j.LoggerFactory
 object MyJob {
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -142,7 +142,7 @@ For Apache Beam based Scio (version >= `0.3.0`) use `DataflowRunner` and specify
 
 You can wait on the `ScioResult` and call the internal `PipelineResult#cancel()` method if a timeout exception happens.
 
-```scala
+```scala mdoc:silent
 val r = sc.close()
 import scala.concurrent.duration._
 if (Try(r.waitUntilFinish(1.minute)).isFailure) {
@@ -176,7 +176,7 @@ Because of these limitations and performance reasons, make sure `--zone`, `--sta
 
 Any nullable field in BigQuery is translated to `Option[T]` by the type safe BigQuery API and it can be clunky to work with rows with multiple or nested fields. For example:
 
-```scala
+```scala mdoc:silent
 if (row.getUser.isDefined) {  // Option[User]
   val email = row.getUser.get.getEmail  // Option[String]
   if (email.isDefined) {
@@ -186,7 +186,7 @@ if (row.getUser.isDefined) {  // Option[User]
 ```
 
 For comprehension is a nicer alternative in these cases:
-```scala
+```scala mdoc:silent
 val e = for (u <- row.getUser; e <- u.getUser) yield e  // Option[String]
 e.foreach(doSomething)
 ```
@@ -202,7 +202,7 @@ BigQuery doesn't provide a way to unit test query logic locally, but we can quer
 Currently there is no way to create a [partitioned](https://cloud.google.com/bigquery/docs/partitioned-tables) BigQuery table via Scio/Beam when streaming, however it is possible to stream to a partitioned table if it is already created.
 
 This can be done by using fixed windows and using the window bounds to infer date. As of Scio 0.4.0-beta2 this looks as follows:
-```scala
+```scala mdoc:silent
 class DayPartitionFunction() extends SerializableFunction[ValueInSingleWindow[TableRow], TableDestination] {
   override def apply(input: ValueInSingleWindow[TableRow]): TableDestination = {
     val partition = DateTimeFormat.forPattern("yyyyMMdd").withZone(DateTimeZone.UTC)
@@ -256,7 +256,7 @@ In this example, the `map`'s transform name is "MakeUpper" and the `filter`'s is
 
 Starting from Scio `0.4.0` you can use Apache Beam's @javadoc[Filesystems](org.apache.beam.sdk.io.FileSystems) abstraction:
 
-```scala
+```scala mdoc:silent
 // the path can be any of the supported Filesystems, e.g. local, GCS, HDFS
 val readmeResource = FileSystems.matchNewResource("gs://<bucket>/README.md")
 val readme = FileSystems.open(readmeResource)
@@ -270,7 +270,7 @@ This part is GCS specific.
 
 You can get a @javadoc[`GcsUtil`](org.apache.beam.sdk.extensions.gcp.options.GcsOptions#getGcsUtil--) instance from `ScioContext`, which can be used to open GCS files in read or write mode.
 
-```scala
+```scala mdoc:silent
 val gcsUtil = sc.optionsAs[GcsOptions].getGcsUtil
 ```
 
@@ -282,7 +282,7 @@ Datastore `Entity` class is actually generated from @github[Protobuf](/scio-exam
 
 Currently Dataflow autoscaling may not work well with large writes BigtableIO. Specifically It does not take into account Bigtable IO rate limits and may scale up more workers and end up hitting the limit and eventually fail the job. As a workaround, you can enable throttling for Bigtable writes in Scio 0.4.0-alpha2 or later.
 
-```scala
+```scala mdoc:silent
 val btOptions = new BigtableOptions.Builder()
   .setProjectId(btProjectId)
   .setInstanceId(btInstanceId)
@@ -300,7 +300,7 @@ See @ref[Kryo](internals/Kryo.md) for more.
 
 Define a registrar class that extends `IKryoRegistrar` and annotate it with `@KryoRegistrar`. Note that the class name must ends with `KryoRegistrar`, i.e. `MyKryoRegistrar` for Scio to find it.
 
-```scala
+```scala mdoc:silent
 import com.twitter.chill._
 
 @KryoRegistrar
@@ -309,14 +309,14 @@ class MyKryoRegistrar extends IKryoRegistrar {
     // register serializers for additional classes here
     k.forClass(new UserRecordSerializer)
     k.forClass(new AccountRecordSerializer)
-    ...
+    //...
   }
 }
 ```
 
 Registering just the classes can also improve Kryo performance. By registering, classes will be serialized as numeric IDs instead of fully qualified class names, hence saving space and network IO while shuffling.
 
-```scala
+```scala mdoc:silent
 import com.twitter.chill._
 
 @KryoRegistrar
@@ -381,7 +381,7 @@ case class Tornado(tornado: Option[Boolean], month: Long)
 
 You can then paste the `@BigQueryType.toTable` code into your pipeline and use it with `sc.typedBigQuery`.
 
-```scala
+```scala mdoc:silent
 @BigQueryType.toTable
 case class Tornado(tornado: Option[Boolean], month: Long)
 
@@ -398,13 +398,13 @@ def main(cmdlineArgs: Array[String]): Unit = {
 
 Sometimes you get an error message like `Cannot prove that T1 <:< T2` when saving an `SCollection`. This is because some sink methods have an implicit argument like this which means element type `T` of `SCollection[T]` must be a sub-type of `TableRow` in order to save it to BigQuery. You have to map out elements to the required type before saving.
 
-```scala
+```scala mdoc:silent
 def saveAsBigQuery(tableSpec: String)(implicit ev: T <:< TableRow)
 ```
 
 In the case of `saveAsTypedBigQuery` you might get an `Cannot prove that T <:< com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation.` error message. This API requires an `SCollection[T]` where `T` is a case class annotated with `@BigQueryType.toTable`. For example:
 
-```scala
+```scala mdoc:silent
 @BigQueryType.toTable
 case class Result(user: String, score: Int)
 
@@ -471,7 +471,7 @@ There is multiple options here:
 
 By default Dataflow workers allocate 100MB (see @javadoc[DataflowWorkerHarnessOptions#getWorkerCacheMb](org.apache.beam.runners.dataflow.options.DataflowWorkerHarnessOptions#getWorkerCacheMb--)) of memory for caching side inputs, and falls back to disk or network. Therefore jobs with large side inputs may be slow. To override this default, register `DataflowWorkerHarnessOptions` before parsing command line arguments and then pass `--workerCacheMb=N` when submitting the job.
 
-```scala
+```scala mdoc:silent
 PipelineOptionsFactory.register(classOf[DataflowWorkerHarnessOptions])
 val (sc, args) = ContextAndArgs(cmdlineArgs)
 ```

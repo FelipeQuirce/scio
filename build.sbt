@@ -815,8 +815,17 @@ lazy val site: Project = project
                  ScalaUnidocPlugin,
                  SiteScaladocPlugin,
                  MdocPlugin)
-  .settings(commonSettings)
+  .settings(commonSettings ++ macroSettings)
   .settings(siteSettings)
+  .dependsOn(
+    scioCore,
+    scioAvro,
+    scioBigQuery,
+    scioParquet,
+    scioHdfs,
+    scioSchemas,
+    scioTest
+  )
 
 // =======================================================================
 // Site settings
@@ -842,6 +851,10 @@ lazy val siteSettings = Def.settings(
   publish / skip := true,
   description := "Scio - Documentation",
   autoAPIMappings := true,
+  libraryDependencies ++= Seq(
+    "org.apache.beam" % "beam-runners-direct-java" % beamVersion,
+    "org.apache.beam" % "beam-runners-google-cloud-dataflow-java" % beamVersion
+  ),
   siteSubdirName in ScalaUnidoc := "api",
   addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
   gitRemoteRepo := "git@github.com:spotify/scio.git",

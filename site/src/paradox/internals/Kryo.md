@@ -7,9 +7,7 @@ By registering your classes at compile time, Kryo can serialize far more efficie
 ## How to enable KryoRegistrar
 Add the following class. You can rename it, but its name has to end in `KryoRegistrar`. Also make sure that the [Macro Paradise](https://docs.scala-lang.org/overviews/macros/paradise.html) plugin is enabled for your project.
 
-````scala
-package x
-
+````scala mdoc:silent
 import com.esotericsoftware.kryo.Kryo
 import com.spotify.scio.coders.KryoRegistrar
 import com.twitter.chill.{AllScalaRegistrar, IKryoRegistrar, toRich}
@@ -46,9 +44,7 @@ _Note:_ since Dataflow may shuffle data at any point, you not only have to inclu
 ## Verifying it works
 You can add the following class to your test folder; it will enforce registration of classes during your tests. It only works if you actually run your job in tests, so be sure to include a `JobTest` or so for each pipeline you run.
 
-````scala
-package x
-
+````scala mdoc:silent
 import com.esotericsoftware.kryo.Kryo
 import com.spotify.scio.coders.KryoRegistrar
 import com.twitter.chill.IKryoRegistrar

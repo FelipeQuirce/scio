@@ -6,7 +6,7 @@
 
 We use [scalafmt](https://scalameta.org/scalafmt) to format code automatically and keep the code style consistent.
 
-#### `Sbt` plugin 
+#### `Sbt` plugin
 
 Run the following command to format the entire codebase.
 
@@ -20,16 +20,16 @@ We also want to avoid custom settings as much as possible to make on-boarding ne
 
 - Set _Code Style &rarr; Scala &rarr; Formatter &rarr; scalafmt_
 - Under _Copyright &rarr; Copyright Profiles_, add the following template.
-  
+
   ```
   Copyright $today.year Spotify AB.
-  
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
       http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -43,7 +43,7 @@ We also want to avoid custom settings as much as possible to make on-boarding ne
 We use `ScalaStyle` to cover other rules that we don't cover with `scalafmt` and the entire code base should pass.
 In case of exceptions, on way of temporarily suppress the warnings is to wrap the violating code with a pair of comments:
 
-```scala
+```scala mdoc:silent
 // scalastyle:off regex
 println("hello")
 // scalastyle:on regex
@@ -60,7 +60,7 @@ Check `ScalaStyle` [configuration](http://www.scalastyle.org/configuration.html)
 rules = [
   RemoveUnused,
   LeakingImplicitClassVal
-]  
+]
 ```
 
 ### References
@@ -77,7 +77,7 @@ We want to adhere to the styles of well known Scala projects and use the followi
 
 - For method declarations, align parameters when they don't fit in a single line. Return types on the same line as the last parameter.
 
-```scala
+```scala mdoc:silent
   def saveAsBigQuery(
     table: TableReference,
     schema: TableSchema,
@@ -85,7 +85,7 @@ We want to adhere to the styles of well known Scala projects and use the followi
     createDisposition: CreateDisposition,
     tableDescription: String,
     timePartitioning: TimePartitioning)(implicit ev: T <:< TableRow): ClosedTap[TableRow] = {
-   // method body 
+   // method body
   }
 
   def saveAsTypedBigQuery(
@@ -102,15 +102,14 @@ We want to adhere to the styles of well known Scala projects and use the followi
 
 - For classes whose header doesn't fit in a single line and exceed the line, align the next line and add a blank line after class header.
 
-```scala
+```scala mdoc:silent
 class Foo(val param1: String,
           val param2: String,
           val param3: Array[Byte])
   extends FooInterface  // 2 space indent here
   with Logging {
 
-  def firstMethod(): Unit = { ... }  // blank line above
-
+  def firstMethod(): Unit = { /* body */ }  // blank line above
 }
 ```
 
@@ -126,7 +125,7 @@ class Foo(val param1: String,
 - Use one blank line to separate class definitions.
 - Excessive number of blank lines is discouraged.
 
-```scala
+```scala mdoc:silent
 class Foo {
 
   val x: Int  // blank line before the first member
@@ -150,7 +149,7 @@ class Bar {
 
 Put curly braces even around one-line conditional or loop statements. The only exception is if you are using if/else as an one-line ternary operator that is also side-effect free.
 
-```scala
+```scala mdoc:silent
 // the only exception for omitting braces
 val x = if (true) expression1 else expression2
 ```
@@ -161,7 +160,7 @@ Use Java docs style instead of Scala docs style. One-liner ScalaDoc is acceptabl
 
 ScalaDoc `/** */` should only be used for documenting API to end users. Use regular comments e.g. `/* */` and `//` for explaining code to developers.
 
-```scala
+```scala mdoc:silent
 /** This is a correct one-liner, short description. */
 
 /**
@@ -182,7 +181,7 @@ def sum[T: Semigroup](xs: Seq[T]): T = xs.reduce(implicitly[Semigroup[T]].plus)
 
 If a class is long and has many methods, group them logically into different sections, and use comment headers to organize them.
 
-```scala
+```scala mdoc:silent
 class ScioContext {
 
   // =======================================================================
